@@ -1,31 +1,46 @@
-# commatrix-cli-plugin
+# `kubectl commatrix` Plugin
 
-This repository implements a single kubectl plugin for switching the namespace
-that the current KUBECONFIG context points to. In order to remain as indestructive
-as possible, no existing contexts are modified.
+The `kubectl commatrix` plugin enhances your Kubernetes CLI experience by providing an easy-to-use command for generating a detailed and up-to-date communication matrix. This tool leverages the [commatrix](https://github.com/openshift-kni/commatrix) project to simplify the process of visualizing and documenting network communication flows in OpenShift clusters.
 
-**Note:** go-get or vendor this package as `k8s.io/sample-cli-plugin`.
+---
 
-This particular example demonstrates how to perform basic operations such as:
+## Overview
 
-* How to create a new custom command that follows kubectl patterns
-* How to obtain a user's KUBECONFIG settings and modify them
-* How to make general use of the provided "cli-runtime" set of helpers for kubectl and third-party plugins
+The `kubectl commatrix` plugin integrates the powerful capabilities of the commatrix library directly into your Kubernetes command-line interface. It enables users to automatically generate a communication flows matrix for OpenShift deployments, including both **multi-node** and **single-node OpenShift (SNO)** clusters. This communication matrix can be used for:
+- Understanding and documenting ingress traffic flows.
+- Assisting with troubleshooting network communication.
+- Generating product documentation for customers.
 
-It makes use of the genericclioptions in [k8s.io/cli-runtime](https://github.com/kubernetes/cli-runtime)
-to generate a set of configuration flags which are in turn used to generate a raw representation of
-the user's KUBECONFIG, as well as to obtain configuration which can be used with RESTClients when sending
-requests to a kubernetes api server.
+---
 
-## Details
+## Key Features
 
-The sample cli plugin uses the [client-go library](https://github.com/kubernetes/client-go/tree/master/tools/clientcmd) to patch an existing KUBECONFIG file in a user's environment in order to update context information to point the client to a new or existing namespace.
+- **Accurate Communication Matrix**: Provides an up-to-date network communication flows matrix for OpenShift deployments.
+- **EndpointSlice Resource Usage**: Utilizes Kubernetes `EndpointSlice` resources to identify ports used for ingress traffic.
+- **Support for Various Deployment Types**:
+  - Multi-node OpenShift clusters.
+  - Single Node OpenShift (SNO) deployments.
+- **CLI Integration**: Easy-to-use `kubectl` plugin for seamless command-line integration.
 
-In order to be as non-destructive as possible, no existing contexts are modified in any way. Rather, the current context is examined, and matched against existing contexts to find a context containing the same "AuthInfo" and "Cluster" information, but with the newly desired namespace requested by the user.
+---
 
-## Purpose
+## How It Works
 
-This is an example of how to build a kubectl plugin using the same set of tools and helpers available to kubectl.
+The `kubectl commatrix` plugin uses the commatrix library to analyze the `EndpointSlice` resource in your cluster. It inspects the following:
+- **Host-networked Pods**: Identifies host-networked pods and their ingress flows.
+- **NodePort Services**: Collects information about NodePort services.
+- **LoadBalancer Services**: Tracks traffic entering the cluster through LoadBalancer services.
+
+By combining these data sources, the plugin generates a detailed communication matrix for all ingress traffic in your cluster.
+
+---
+
+## Installation
+
+### Prerequisites
+
+- Kubernetes CLI (`kubectl`) installed and configured to access your cluster.
+- Go installed for building the plugin, or download a pre-built binary (if available).
 
 ## Running
 
@@ -39,4 +54,12 @@ $ cp ./kubectl-commatrix /usr/local/bin
 # update your configuration to point to "new-namespace"
 $ kubectl commatrix generate
 
-```
+## Example Output
+
+Once you run the `kubectl commatrix generate` command, the plugin will generate a communication matrix based on the ingress flows in your OpenShift cluster. The output will be displayed in a tabular format, similar to the following:
+
+```text
+| Direction | Protocol | Port | Namespace              | Service              | Pod       | Container          | Node Role | Optional |
+|-----------|----------|------|------------------------|----------------------|-----------|--------------------|-----------|----------|
+| Ingress   | TCP      | 22   | Host system service    | sshd                 |           |                    | master    | true     |
+| Ingress   | TCP      | 111  | Host system service    | rpcbind              |           |                    | master    | true     |

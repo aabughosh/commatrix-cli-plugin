@@ -2,8 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"github.com/spf13/cobra"
 
@@ -147,7 +145,9 @@ func (o *CommatrixOptions) Run() error {
 	}
 
 	cs, err := client.New()
-	handleError("Failed creating the k8s client", err)
+	if err != nil {
+		return fmt.Errorf("%s: %v", "Failed creating the k8s client", err)
+	}
 
 	utilsHelpers := utils.New(cs)
 	log.Debug("Utils helpers initialized")
@@ -162,10 +162,11 @@ func (o *CommatrixOptions) Run() error {
 		return fmt.Errorf("failed creating the endpointslices exporter %s", err)
 	}
 
-	matrix, err := generateAndWriteCommunicationMatrix(epExporter, o.destDir, deployment, infra, o.customEntriesPath, o.customEntriesFormat)
+	matrix, err := generateCommunicationMatrix(epExporter, deployment, infra, o.customEntriesPath, o.customEntriesFormat)
 	if err != nil {
 		return err
 	}
+
 	var res []byte
 	switch o.format {
 	case "json":
@@ -195,12 +196,6 @@ func (o *CommatrixOptions) Run() error {
 	return nil
 }
 
-func handleError(message string, err error) {
-	if err != nil {
-		log.Panicf("%s: %v", message, err)
-	}
-}
-
 func detectDeploymentAndInfra(utilsHelpers utils.UtilsInterface) (types.Deployment, types.Env, error) {
 	log.Debug("Detecting deployment and infra types")
 
@@ -226,9 +221,8 @@ func detectDeploymentAndInfra(utilsHelpers utils.UtilsInterface) (types.Deployme
 	return deployment, infra, err
 }
 
-func generateAndWriteCommunicationMatrix(epExporter *endpointslices.EndpointSlicesExporter, destDir string, deployment types.Deployment, infra types.Env, customEntriesPath, customEntriesFormat string) (*types.ComMatrix, error) {
+func generateCommunicationMatrix(epExporter *endpointslices.EndpointSlicesExporter, deployment types.Deployment, infra types.Env, customEntriesPath, customEntriesFormat string) (*types.ComMatrix, error) {
 	log.Debug("Creating communication matrix")
-	createNestedDirectory(destDir)
 	commMatrix, err := commatrixcreator.New(epExporter, customEntriesPath, customEntriesFormat, infra, deployment)
 	if err != nil {
 		return nil, err
@@ -240,15 +234,4 @@ func generateAndWriteCommunicationMatrix(epExporter *endpointslices.EndpointSlic
 	}
 
 	return matrix, nil
-}
-
-func createNestedDirectory(destDir string) error {
-	// Create nested directory structure
-	nestedDir := filepath.Join(destDir, "communication-matrix")
-	err := os.MkdirAll(nestedDir, os.ModePerm)
-	if err != nil {
-		return fmt.Errorf("failed to create nested directory %s: %v", nestedDir, err)
-	}
-	log.Printf("Successfully created nested directory: %s", nestedDir)
-	return nil
 }
