@@ -29,7 +29,7 @@ resource in your cluster. It inspects the following:
 
 - **Host-networked Pods**: Identifies host-networked pods and their ingress flows.
 - **NodePort Services**: Collects information about NodePort services.
-- **LoadBalancer Services**: Tracks traffic entering the cluster through 
+- **LoadBalancer Services**: Tracks traffic entering the cluster through
 LoadBalancer services.
 
 By combining these data sources, the plugin generates a detailed communication matrix
