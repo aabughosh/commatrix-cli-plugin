@@ -13,16 +13,6 @@ The `kubectl commatrix` plugin integrates the powerful capabilities of the comma
 
 ---
 
-## Key Features
-
-- **Accurate Communication Matrix**: Provides an up-to-date network communication flows matrix for OpenShift deployments.
-- **EndpointSlice Resource Usage**: Utilizes Kubernetes `EndpointSlice` resources to identify ports used for ingress traffic.
-- **Support for Various Deployment Types**:
-  - Multi-node OpenShift clusters.
-  - Single Node OpenShift (SNO) deployments.
-- **CLI Integration**: Easy-to-use `kubectl` plugin for seamless command-line integration.
-
----
 
 ## How It Works
 
