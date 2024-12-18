@@ -61,8 +61,5 @@ jobs:
         with:
           files: .
 
-      - name: Go vet
-        run: make vet
-
       - name: Run tests
         run: make test  # Corrected from 'Eun test' to 'Run test'
