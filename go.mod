@@ -2,7 +2,11 @@ module commatrix-cli-plugin
 
 go 1.22.4
 
-require github.com/spf13/cobra v1.8.1
+require (
+	github.com/golang/mock v1.6.0
+	github.com/spf13/cobra v1.8.1
+	github.com/stretchr/testify v1.9.0
+)
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
@@ -10,11 +14,9 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/chai2010/gettext-go v1.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/emicklei/go-restful/v3 v3.11.0 // indirect
 	github.com/evanphx/json-patch/v5 v5.9.0 // indirect
-	github.com/exponent-io/jsonpath v0.0.0-20151013193312-d6023ce2651d // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
 	github.com/go-errors/errors v1.4.2 // indirect
@@ -52,6 +54,7 @@ require (
 	github.com/openshift/client-go v0.0.0-20240906181530-b2f7c4ab0984 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_golang v1.20.4 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.55.0 // indirect
@@ -78,7 +81,6 @@ require (
 	k8s.io/apiextensions-apiserver v0.31.1 // indirect
 	k8s.io/apimachinery v0.31.3 // indirect
 	k8s.io/client-go v0.31.3 // indirect
-	k8s.io/component-base v0.31.3 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20240228011516-70dd3763d340 // indirect
 	k8s.io/utils v0.0.0-20240711033017-18e509b52bc8 // indirect

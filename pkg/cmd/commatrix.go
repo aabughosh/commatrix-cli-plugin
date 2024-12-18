@@ -38,7 +38,6 @@ type CommatrixOptions struct {
 }
 
 func NewCmdCommatrix(streams genericiooptions.IOStreams) *cobra.Command {
-
 	// Parent command to which all subcommands are added.
 	cmds := &cobra.Command{
 		Use:   "commatrix",
@@ -58,7 +57,7 @@ func Newcommatrix(streams genericiooptions.IOStreams) *CommatrixOptions {
 	}
 }
 
-// NewCmdAddRoleToUser implements the OpenShift cli add-role-to-user command
+// NewCmdAddRoleToUser implements the OpenShift cli add-role-to-user command.
 func NewCmdCommatrixGenerate(streams genericiooptions.IOStreams) *cobra.Command {
 	o := Newcommatrix(streams)
 	cmd := &cobra.Command{
@@ -85,18 +84,17 @@ func NewCmdCommatrixGenerate(streams genericiooptions.IOStreams) *cobra.Command 
 	cmd.Flags().StringVar(&o.customEntriesPath, "customEntriesPath", "", "Add custom entries from a file to the matrix")
 	cmd.Flags().StringVar(&o.customEntriesFormat, "customEntriesFormat", "", "Set the format of the custom entries file (json,yaml,csv)")
 	cmd.Flags().BoolVar(&o.debug, "debug", false, "Debug logs")
-	//o.configFlags.AddFlags(cmd.Flags())
 	return cmd
 }
 
-// Complete initializes the options based on the provided arguments and flags
+// Complete initializes the options based on the provided arguments and flags.
 func (o *CommatrixOptions) Complete(cmd *cobra.Command, args []string) error {
 	// Validate the number of arguments
 	if len(args) > 0 {
 		return fmt.Errorf("unexpected arguments: %v", args)
 	}
 
-	// Initialize any dependencies or derived fields if needed
+	// Initialize any dependencies or derived fields if needed.
 	if o.destDir == "" {
 		o.destDir = "communication-matrix" // Default value
 	}
@@ -113,7 +111,7 @@ func (o *CommatrixOptions) Complete(cmd *cobra.Command, args []string) error {
 }
 
 func (o *CommatrixOptions) Validate() error {
-	// Validate destination directory
+	// Validate destination directory.
 	if o.destDir == "" {
 		return fmt.Errorf("destination directory cannot be empty")
 	}
@@ -124,7 +122,7 @@ func (o *CommatrixOptions) Validate() error {
 		return fmt.Errorf("invalid format '%s', valid options are: csv, json, yaml, nft", o.format)
 	}
 
-	// Validate custom entries path and format
+	// Validate custom entries path and format.
 	if o.customEntriesPath != "" {
 		if o.customEntriesFormat == "" {
 			return fmt.Errorf("you must specify the --customEntriesFormat when using --customEntriesPath")
