@@ -5,19 +5,23 @@ SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 CURPATH=$(PWD)
 BIN_DIR=$(CURPATH)/bin
-GOLANGCI_LINT = $(BIN_DIR)/golangci-lint
-# golangci-lint version should be updated periodically
-# we keep it fixed to avoid it from unexpectedly failing on the project
-# in case of a version bump
-GOLANGCI_LINT_VER = v1.55.2
+BASH_SCRIPTS=$(shell find . -name "*.sh" -not -path "./.git/*")
 
-.PHONY: build
+
+.PHONY: all build deps-update check-deps fmt-code lint lint-go lint-shell lint-md lint-sh test clean
+
+# Default target
+all: lint test
+
+# Build the executable
 build:
 	go build -o $(EXECUTABLE) $(GO_SRC)
 
+# Update dependencies
 deps-update:
 	go mod tidy
 
+# Check if go modules are up to date
 check-deps: deps-update
 	@set +e; git diff --quiet HEAD go.sum go.mod; \
 	if [ $$? -eq 1 ]; \
@@ -28,21 +32,28 @@ check-deps: deps-update
 fmt-code:
 	go fmt ./...
 
-$(GOLANGCI_LINT): ; $(info installing golangci-lint...)
-	$(call go-install-tool,$(GOLANGCI_LINT),github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCI_LINT_VER))
+# Lint the project
+lint: lint-go lint-shell lint-md lint-sh
 
-.PHONY: lint
-lint: | $(GOLANGCI_LINT) ; $(info  running golangci-lint...) @ ## Run golangci-lint
-	GOFLAGS="" $(GOLANGCI_LINT) run --timeout=10m
+# Run GolangCI-Lint
+lint-go:
+	checkmake --config=.checkmake Makefile
+	golangci-lint run --timeout 10m0s
 
+# Lint shell scripts
+lint-shell:
+	shfmt -d scripts/*.sh
+	shellcheck --format=gcc ${BASH_SCRIPTS}
+
+# Lint Markdown files
+lint-md:
+	typos
+	markdownlint '**/*.md'
+
+# Run tests
 test:
 	go test ./...
 
-# go-install-tool will 'go install' any package $2 and install it to $1.
-define go-install-tool
-@[ -f $(1) ] || { \
-set -e ;\
-echo "Downloading $(2)" ;\
-GOBIN=$(BIN_DIR) GOFLAGS="" go install $(2) ;\
-}
-endef
+# Clean target to remove generated files
+clean:
+	rm -f $(EXECUTABLE) $(BIN_DIR)/*

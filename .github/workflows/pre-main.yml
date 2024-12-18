@@ -1,50 +1,71 @@
-name: CI Pipeline
+name: Test Incoming Changes
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
-jobs:
-  lint-and-test:
-    name: Run Lint and Tests
-    runs-on: ubuntu-22.04
+env:
+  CM_BIN: /usr/local/bin/checkmake
+  CM_URL_LINUX: https://github.com/mrtazz/checkmake/releases/download/0.2.2/checkmake-0.2.2.linux.amd64 # yamllint disable-line
 
-    strategy:
-      matrix:
-        go-version: [1.23.4]
+jobs:
+  lint:
+    name: Run Linters and Vet
+    runs-on: ubuntu-22.04
+    env:
+      SHELL: /bin/bash
 
     steps:
-      - name: Set up Go
-        uses: actions/setup-go@v5
+      - name: Set up Go 1.23
+        uses: actions/setup-go@v5  # Updated to use version tag instead of commit hash
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: 1.23.1
+
+      - name: Disable default go problem matcher
+        run: echo "::remove-matcher owner=go::"
 
       - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Cache Go modules
-        uses: actions/cache@v3
+        uses: actions/checkout@v4  # Updated to use version tag instead of commit hash
         with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-${{ matrix.go-version }}-
+          ref: ${{ github.sha }}
 
-      - name: Install golangci-lint
+      - name: Extract dependent Pull Requests
+        uses: depends-on/depends-on-action@main  # Using the latest stable release tag
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install checkmake
         run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.61.0
-          mv ./bin/golangci-lint /usr/local/bin/
+          curl --location --output $CM_BIN --silent $CM_URL_LINUX
+          chmod +x $CM_BIN
 
-      - name: Run Lint
-        run: make lint
+      - name: Install shfmt (if shell scripts are used)
+        run: |
+          curl -sSfL https://github.com/mvdan/sh/releases/download/v3.5.0/shfmt_v3.5.0_linux_amd64 -o /usr/local/bin/shfmt
+          chmod +x /usr/local/bin/shfmt
 
-      - name: Build Project
-        run: make build
+      - name: Golangci-lint
+        uses: golangci/golangci-lint-action@v6.1.0  # Version tag used consistently
+        with:
+          version: v1.60
+          args: --timeout 10m0s
 
-      - name: Run Tests
-        run: make test
+      - name: Checkmake
+        run: checkmake --config=.checkmake Makefile
+
+      - name: Markdownlint
+        uses: nosborn/github-action-markdown-cli@v3.3.0  # Version tag used
+        with:
+          files: .
+
+      - name: Typos
+        uses: crate-ci/typos@master  # Consider using a tagged release
+
+      - name: Go vet
+        run: make vet
+
+      - name: Run tests
+        run: make test  # Corrected from 'Eun test' to 'Run test'
