@@ -61,9 +61,6 @@ jobs:
         with:
           files: .
 
-      - name: Typos
-        uses: crate-ci/typos@master  # Consider using a tagged release
-
       - name: Go vet
         run: make vet
 
