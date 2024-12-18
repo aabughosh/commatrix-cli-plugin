@@ -29,7 +29,8 @@ resource in your cluster. It inspects the following:
 
 - **Host-networked Pods**: Identifies host-networked pods and their ingress flows.
 - **NodePort Services**: Collects information about NodePort services.
-- **LoadBalancer Services**: Tracks traffic entering the cluster through LoadBalancer services.
+- **LoadBalancer Services**: Tracks traffic entering the cluster through 
+LoadBalancer services.
 
 By combining these data sources, the plugin generates a detailed communication matrix
 for all ingress traffic in your cluster.
@@ -64,11 +65,11 @@ $ kubectl commatrix generate
 
 Once you run the `kubectl commatrix generate` command, the plugin will
 generate a communication matrix based on the ingress flows in your
-OpenShift cluster. The output will be displayed in a tabular format, 
+OpenShift cluster. The output will be displayed in a tabular format,
 similar to the following:
 
-text
-| Direction | Protocol | Port | Namespace              | Service              | Pod       | Container          | Node Role | Optional |
-|-----------|----------|------|------------------------|----------------------|-----------|--------------------|-----------|----------|
-| Ingress   | TCP      | 22   | Host system service    | sshd                 |           |                    | master    | true     |
-| Ingress   | TCP      | 111  | Host system service    | rpcbind              |           |                    | master    | true     |
+| Direction | Protocol | Port | Namespace              | Service              |
+|-----------|----------|------|------------------------|----------------------|
+| Pod       | Container | Node Role | Optional              |
+| Ingress   | TCP      | 22   | Host system service    | sshd                 |
+| Ingress   | TCP      | 111  | Host system service    | rpcbind              |
