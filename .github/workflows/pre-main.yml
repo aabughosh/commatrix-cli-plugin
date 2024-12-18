@@ -36,8 +36,10 @@ jobs:
             ${{ runner.os }}-go-${{ matrix.go-version }}-
 
       - name: Install golangci-lint
-        run: make $(GOLANGCI_LINT)
-
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.55.2
+          mv ./bin/golangci-lint /usr/local/bin/
+          
       - name: Run Lint
         run: make lint
 
